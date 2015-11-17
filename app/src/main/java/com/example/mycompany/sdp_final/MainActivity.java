@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -14,7 +15,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,9 +29,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         textSource = (TextView) findViewById(R.id.sourceuri);
-        TouchImageView iv = (TouchImageView) findViewById(R.id.view);
+        ImageView iv = (ImageView) findViewById(R.id.view);
         //Load the background image
-
 
         try {
             InputStream bitmap=getAssets().open("image.jpg");
@@ -51,25 +50,22 @@ public class MainActivity extends AppCompatActivity {
                 int x = (int) event.getX();
                 int y = (int) event.getY();
 
-
-
-
                 switch(action){
                     case MotionEvent.ACTION_DOWN:
                         textSource.setText("ACTION_DOWN-" + x + " : " + y);
                         textSource.setBackgroundColor(
-                                getProjectedColor((TouchImageView) v, bit, x, y));
+                                getProjectedColor((ImageView) v, bit, x, y));
                         break;
                   case MotionEvent.ACTION_MOVE:
                         textSource.setText("ACTION_MOVE-" + x + " : " + y);
                         textSource.setBackgroundColor(
-                                getProjectedColor((TouchImageView) v, bit, x, y));
+                                getProjectedColor((ImageView) v, bit, x, y));
                         break;
                     case MotionEvent.ACTION_UP:
 
                         textSource.setText("ACTION_UP-" + x + " : " + y);
                         textSource.setBackgroundColor(
-                                getProjectedColor((TouchImageView) v, bit, x, y));
+                                getProjectedColor((ImageView) v, bit, x, y));
 
                         break;
                }
@@ -86,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
  * Project position on ImageView to position on Bitmap
  * return the color on the position
  */
-    private int getProjectedColor(TouchImageView iv, Bitmap bm, int x, int y){
+    private int getProjectedColor(ImageView iv, Bitmap bm, int x, int y) {
         if(x<0 || y<0 || x > iv.getWidth() || y > iv.getHeight()){
             //outside ImageView
             return android.R.color.background_light;
@@ -101,7 +97,6 @@ public class MainActivity extends AppCompatActivity {
             return bm.getPixel(projectedX, projectedY);
         }
     }
-
 
 
     @Override
@@ -125,6 +120,8 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+
 /*
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
