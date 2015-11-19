@@ -1,5 +1,6 @@
 package com.example.mycompany.sdp_final;
 
+import android.database.Cursor;
 import android.graphics.Rect;
 
 import java.util.ArrayList;
@@ -16,6 +17,30 @@ public class Facility {
     private String description;
     private String direction;
     private List<String> fImages;
+
+    public static final class Constants {
+
+        public static final String TABLE_NAME = "facilities";
+
+        public static final class Columns {
+            public static final String ID = "_id";
+            public static final String NAME = "name";
+            public static final String DESCRIPTION = "description";
+            public static final String DIRECTION = "direction";
+            public static final String FIMAGES = "fimages";
+        }
+
+    }
+
+    public static String TABLE_CREATE_STATEMENT(){
+        String CREATE_STATEMENT = "CREATE TABLE IF NOT EXISTS " + Constants.TABLE_NAME + " ( "
+                + Constants.Columns.ID + " TEXT PRIMARY KEY, "
+                + Constants.Columns.NAME + " TEXT, "
+                + Constants.Columns.DESCRIPTION + " TEXT, "
+                + Constants.Columns.DIRECTION + " TEXT, "
+                + Constants.Columns.FIMAGES + " TEXT);";
+        return CREATE_STATEMENT;
+    }
 
     public Facility(Rect coordinates, String name) {
         this.coordinates = coordinates;
@@ -98,6 +123,20 @@ public class Facility {
                 Integer.valueOf(splits[1]),
                 Integer.valueOf(splits[2]),
                 Integer.valueOf(splits[3]));
+    }
+
+    public static Facility toFacility(Cursor cursor){
+        String ID = cursor.getString(cursor.getColumnIndex(Constants.Columns.ID));
+        String NAME = cursor.getString(cursor.getColumnIndex(Constants.Columns.NAME));
+        String DESCRIPTION = cursor.getString(cursor.getColumnIndex(Constants.Columns.DESCRIPTION));
+        String DIRECTION = cursor.getString(cursor.getColumnIndex(Constants.Columns.DIRECTION));
+        String FIMAGES = cursor.getString(cursor.getColumnIndex(Constants.Columns.FIMAGES));
+        return new Facility()
+                .setCoordinates(Facility.getCoordinatesById(ID))
+                .setName(NAME)
+                .setDescription(DESCRIPTION)
+                .setDirection(DIRECTION)
+                .setfImages(Facility.getFImagesFromString(FIMAGES));
     }
 
 }

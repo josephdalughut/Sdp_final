@@ -5,7 +5,6 @@ import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -28,15 +27,6 @@ public class Database extends SQLiteOpenHelper {
         public static final String DATABASE_NAME = "database";
         public static final int DATABASE_VERSION = 1;
 
-        public static final String TABLE_NAME = "facilities";
-
-        public static final class Columns {
-            public static final String ID = "_id";
-            public static final String NAME = "name";
-            public static final String DESCRIPTION = "description";
-            public static final String DIRECTION = "direction";
-            public static final String FIMAGES = "fimages";
-        }
     }
 
     public static void initialize(Context context){
@@ -62,13 +52,9 @@ public class Database extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-            String CREATE_STATEMENT = "CREATE TABLE IF NOT EXISTS " + Constants.TABLE_NAME + " ( "
-                    + Constants.Columns.ID + " TEXT PRIMARY KEY, "
-                    + Constants.Columns.NAME + " TEXT, "
-                    + Constants.Columns.DESCRIPTION + " TEXT, "
-                    + Constants.Columns.DIRECTION + " TEXT, "
-                    + Constants.Columns.FIMAGES + " TEXT);";
-            db.execSQL(CREATE_STATEMENT);
+        db.execSQL(Facility.TABLE_CREATE_STATEMENT());
+        db.execSQL(Office.TABLE_CREATE_STATEMENT());
+        db.execSQL(Staff.TABLE_CREATE_STATEMENT());
     }
 
     private boolean isDatabaseCreated(Context context){
@@ -90,32 +76,18 @@ public class Database extends SQLiteOpenHelper {
     public static void cache(Facility facility, Context context){
         if(facility == null) return;
         ContentValues values = new ContentValues();
-        values.put(Constants.Columns.ID, facility.getIdByCoordinates());
-        values.put(Constants.Columns.NAME, facility.getName());
-        values.put(Constants.Columns.DESCRIPTION, facility.getDescription());
-        values.put(Constants.Columns.DIRECTION, facility.getDirection());
-        values.put(Constants.Columns.FIMAGES, facility.getFImagesAsString());
-        getInstance(context).getWritableDatabase().replace(Constants.TABLE_NAME, null, values);
+        values.put(Facility.Constants.Columns.ID, facility.getIdByCoordinates());
+        values.put(Facility.Constants.Columns.NAME, facility.getName());
+        values.put(Facility.Constants.Columns.DESCRIPTION, facility.getDescription());
+        values.put(Facility.Constants.Columns.DIRECTION, facility.getDirection());
+        values.put(Facility.Constants.Columns.FIMAGES, facility.getFImagesAsString());
+        getInstance(context).getWritableDatabase().replace(Facility.Constants.TABLE_NAME, null, values);
     }
 
     public static void cache(List<Facility> facilities, Context context){
         if(facilities == null || facilities.isEmpty() || context == null) return;
         for(Facility facility : facilities)
             cache(facility, context);
-    }
-
-    public static Facility toFacility(Cursor cursor){
-        String ID = cursor.getString(cursor.getColumnIndex(Constants.Columns.ID));
-        String NAME = cursor.getString(cursor.getColumnIndex(Constants.Columns.NAME));
-        String DESCRIPTION = cursor.getString(cursor.getColumnIndex(Constants.Columns.DESCRIPTION));
-        String DIRECTION = cursor.getString(cursor.getColumnIndex(Constants.Columns.DIRECTION));
-        String FIMAGES = cursor.getString(cursor.getColumnIndex(Constants.Columns.FIMAGES));
-        return new Facility()
-                .setCoordinates(Facility.getCoordinatesById(ID))
-                .setName(NAME)
-                .setDescription(DESCRIPTION)
-                .setDirection(DIRECTION)
-                .setfImages(Facility.getFImagesFromString(FIMAGES));
     }
 
 }
