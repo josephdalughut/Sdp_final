@@ -18,6 +18,9 @@ import com.example.mycompany.sdp_final.R;
 import com.example.mycompany.sdp_final.entities.Staff;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by Joseph Dalughut on 19/11/2015 at 5:38 PM.
  * Project name : Sdp_final.
@@ -84,16 +87,34 @@ public class StaffDetailFragment extends Fragment {
 
         infoRecyclerView.setLayoutManager(verticalLayoutManager);
         coursesRecyclerView.setLayoutManager(horizontalLayoutManager);
-
-
-
+        setupAdapters();
         return rootView;
     }
 
+    private void setupAdapters(){
+        List<DetailItem> detailItems = new ArrayList<>();
+        if(staff.getEmails()!=null && !staff.getEmails().isEmpty()){
+            for(int i = 0; i < staff.getEmails().size(); i++){
+                detailItems.add(new DetailItem(i == 0 ? R.mipmap.ic_action_maps_local_post_office_icon : null, staff.getEmails().get(i), i == staff.getEmails().size() -1 ));
+            }
+        }
+        if(staff.getPhones()!=null && !staff.getPhones().isEmpty()){
+            for(int i = 0; i < staff.getPhones().size(); i++){
+                detailItems.add(new DetailItem(i == 0 ? R.mipmap.ic_action_maps_local_phone_icon : null, staff.getPhones().get(i), i == staff.getPhones().size() -1 ));
+            }
+        }
+        DetailAdapter detailAdapter = new DetailAdapter(detailItems);
+        infoRecyclerView.setAdapter(detailAdapter);
+        coursesRecyclerView.setAdapter(new CourseAdapter(staff.getCourses()));
+    }
+
     private class DetailItem {
-        private Integer iconRes;
-        private String text;
-        private boolean showDivider;
+        Integer iconRes;
+        String text;
+        boolean showDivider;
+        public DetailItem(Integer iconRes, String text, boolean showDivider){
+            this.iconRes = iconRes; this.text = text; this.showDivider = showDivider;
+        }
     }
 
     private class DetailViewHolder extends RecyclerView.ViewHolder {
@@ -106,7 +127,7 @@ public class StaffDetailFragment extends Fragment {
             super(itemView);
             text = (TextView) findViewById(R.id.text);
             divider = findViewById(R.id.divider);
-
+            icon = (ImageButton) findViewById(R.id.icon);
         }
 
         View findViewById(int resId){
@@ -116,12 +137,76 @@ public class StaffDetailFragment extends Fragment {
 
     private class CourseViewHolder extends RecyclerView.ViewHolder {
 
+        TextView text;
+
         public CourseViewHolder(View itemView) {
             super(itemView);
+            text = (TextView) findViewById(R.id.text);
         }
 
         View findViewById(int resId){
             return itemView.findViewById(resId);
+        }
+    }
+
+    private class CourseAdapter extends RecyclerView.Adapter<CourseViewHolder>{
+
+        public CourseAdapter(List<String> courses){
+            this.courses = courses;
+        }
+
+        private List<String> courses;
+
+        @Override
+        public CourseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            return new CourseViewHolder(LayoutInflater.from(getContext()).inflate(R.layout.item_course, parent, false));
+        }
+
+        @Override
+        public void onBindViewHolder(CourseViewHolder holder, int position) {
+
+        }
+
+        private String getItem(int position){
+            return courses.get(position);
+        }
+
+        @Override
+        public int getItemCount() {
+            return courses==null ? 0 : courses.size();
+        }
+    }
+
+    private class DetailAdapter  extends RecyclerView.Adapter<DetailViewHolder> {
+
+        public DetailAdapter(List<DetailItem> items){
+            this.itemList = items;
+        }
+
+        private List<DetailItem> itemList;
+
+        @Override
+        public DetailViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            return new DetailViewHolder(LayoutInflater.from(getContext()).inflate(R.layout.item_detail_with_icon, parent, false));
+        }
+
+        @Override
+        public void onBindViewHolder(DetailViewHolder holder, int position) {
+            DetailItem item = getItem(position);
+            holder.divider.setVisibility(item.showDivider ? View.VISIBLE : View.INVISIBLE);
+            holder.text.setText(item.text);
+            if(item.iconRes !=null){
+                holder.icon.setImageResource(item.iconRes);
+            }
+        }
+
+        private DetailItem getItem(int position){
+            return itemList.get(position);
+        }
+
+        @Override
+        public int getItemCount() {
+            return itemList == null ? 0 : itemList.size();
         }
     }
 
