@@ -1,21 +1,18 @@
-package com.example.mycompany.sdp_final;
+package com.example.mycompany.sdp_final.gui.activities;
 
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import java.io.FileNotFoundException;
+
+import com.example.mycompany.sdp_final.R;
+
 import java.io.IOException;
 import java.io.InputStream;
 

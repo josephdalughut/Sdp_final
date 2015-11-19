@@ -1,4 +1,4 @@
-package com.example.mycompany.sdp_final;
+package com.example.mycompany.sdp_final.gui.fragments;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -8,6 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridView;
 import android.widget.TextView;
+
+import com.example.mycompany.sdp_final.entities.Facility;
 
 /**
  * Created by Joseph Dalughut on 17/11/2015 at 10:13 PM.

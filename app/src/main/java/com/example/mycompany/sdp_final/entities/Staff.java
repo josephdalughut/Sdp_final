@@ -1,4 +1,8 @@
-package com.example.mycompany.sdp_final;
+package com.example.mycompany.sdp_final.entities;
+
+import android.database.Cursor;
+
+import com.example.mycompany.sdp_final.Database;
 
 import java.util.List;
 
@@ -20,6 +24,7 @@ public class Staff {
             public static final String DESCRIPTION = "description";
             public static final String EMAILS = "emails";
             public static final String PHONES = "phones";
+            public static final String IMAGE = "image";
             public static final String COURSES = "courses";
         }
     }
@@ -31,11 +36,12 @@ public class Staff {
                 +Constants.Columns.OFFICE + " TEXT, "
                 + Constants.Columns.DESCRIPTION + " TEXT, "
                 + Constants.Columns.EMAILS + " TEXT, "
+                + Constants.Columns.IMAGE + " TEXT, "
                 + Constants.Columns.PHONES + " TEXT, "
                 + Constants.Columns.COURSES + " TEXT);";
     }
 
-    private String id, name, office, description;
+    private String id, name, office, description, image;
     private List<String> emails, phones, courses;
 
     public Staff setId(String id){
@@ -47,4 +53,26 @@ public class Staff {
     public Staff setEmails(List<String> emails){this.emails = emails; return this;}
     public Staff setPhones(List<String> phones){this.phones = phones; return this;}
     public Staff setCourses(List<String> courses){this.courses = courses; return this;}
+    public Staff setImage(String image){this.image = image; return this;}
+
+    public String getId(){return this.id;}
+    public String getOffice(){return this.office;}
+    public String getDescription(){return this.description;}
+    public List<String> getEmails(){return this.emails;}
+    public List<String> getPhones(){return this.phones;}
+    public List<String> getCourses(){return this.courses;}
+    public String getName(){return this.name;}
+    public String getImage(){return this.image;}
+
+    public static Staff toStaff(Cursor cursor){
+        return new Staff()
+                .setId(cursor.getString(cursor.getColumnIndex(Constants.Columns.ID)))
+                .setName(cursor.getString(cursor.getColumnIndex(Constants.Columns.NAME)))
+                .setCourses(Database.listFromString(cursor.getString(cursor.getColumnIndex(Constants.Columns.COURSES))))
+                .setDescription(cursor.getString(cursor.getColumnIndex(Constants.Columns.DESCRIPTION)))
+                .setOffice(cursor.getString(cursor.getColumnIndex(Constants.Columns.OFFICE)))
+                .setImage(cursor.getString(cursor.getColumnIndex(Constants.Columns.IMAGE)))
+                .setEmails(Database.listFromString(cursor.getString(cursor.getColumnIndex(Constants.Columns.EMAILS))))
+                .setPhones(Database.listFromString(cursor.getString(cursor.getColumnIndex(Constants.Columns.PHONES))));
+    }
 }

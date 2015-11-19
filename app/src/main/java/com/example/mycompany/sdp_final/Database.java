@@ -10,6 +10,11 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Build;
 
+import com.example.mycompany.sdp_final.entities.Facility;
+import com.example.mycompany.sdp_final.entities.Office;
+import com.example.mycompany.sdp_final.entities.Staff;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -80,14 +85,61 @@ public class Database extends SQLiteOpenHelper {
         values.put(Facility.Constants.Columns.NAME, facility.getName());
         values.put(Facility.Constants.Columns.DESCRIPTION, facility.getDescription());
         values.put(Facility.Constants.Columns.DIRECTION, facility.getDirection());
-        values.put(Facility.Constants.Columns.FIMAGES, facility.getFImagesAsString());
+        values.put(Facility.Constants.Columns.FIMAGES, listToString(facility.getfImages()));
         getInstance(context).getWritableDatabase().replace(Facility.Constants.TABLE_NAME, null, values);
     }
 
-    public static void cache(List<Facility> facilities, Context context){
+    public static void cacheFacilities(List<Facility> facilities, Context context){
         if(facilities == null || facilities.isEmpty() || context == null) return;
         for(Facility facility : facilities)
             cache(facility, context);
+    }
+
+    public static void cache(Office office, Context context){
+        if(office == null) return;
+        ContentValues values = new ContentValues();
+        values.put(Office.Constants.Columns.ID, office.getId());
+        values.put(Office.Constants.Columns.NAME, office.getName());
+        values.put(Office.Constants.Columns.DESCRIPTION, office.getDescription());
+        values.put(Office.Constants.Columns.DIRECTIONS, office.getDirections());
+        getInstance(context).getWritableDatabase().replace(Office.Constants.TABLE_NAME, null, values);
+    }
+
+    public static void cacheOffices(List<Office> offices, Context context){
+        if(offices == null || offices.isEmpty() || context == null) return;
+        for(Office office : offices)
+            cache(office, context);
+    }
+
+    public static void cache(Staff staff, Context context){
+        if(staff == null || context == null) return;
+        ContentValues values = new ContentValues();
+        values.put(Staff.Constants.Columns.ID, staff.getId());
+        values.put(Staff.Constants.Columns.NAME, staff.getName());
+        values.put(Staff.Constants.Columns.COURSES, listToString(staff.getCourses()));
+        values.put(Staff.Constants.Columns.DESCRIPTION, staff.getDescription());
+        values.put(Staff.Constants.Columns.EMAILS, listToString(staff.getEmails()));
+        values.put(Staff.Constants.Columns.OFFICE, staff.getOffice());
+        values.put(Staff.Constants.Columns.PHONES, listToString(staff.getPhones()));
+        getInstance(context).getWritableDatabase().replace(Staff.Constants.TABLE_NAME, null, values);
+    }
+
+    public static String listToString(List<String> items){
+        if(items==null || items.isEmpty()) return "";
+        String string = "";
+        for(int i = 0; i < items.size(); i++){
+            string = string + (i == items.size()-1 ? items.get(i) : items.get(i)+",");
+        }
+        return string;
+    }
+
+    public static List<String> listFromString(String string){
+        if(string == null) return null;
+        String[] splits = string.split(",");
+        List<String> strings = new ArrayList<>(splits.length);
+        for(String s : splits)
+            strings.add(s);
+        return strings;
     }
 
 }

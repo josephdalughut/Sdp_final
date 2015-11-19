@@ -2,10 +2,12 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/white"
+    android:clickable="true"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <android.support.design.widget.CoordinatorLayout
+        android:id="@+id/coordinator"
         android:layout_width="match_parent"
         android:elevation="0dp"
         android:layout_height="match_parent"
@@ -32,6 +34,12 @@
                     app:layout_collapseMode="parallax"
                     android:elevation="0dp"
                     android:layout_height="match_parent">
+
+                    <ImageView
+                        android:id="@+id/image"
+                        android:scaleType="centerCrop"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
 
 
                 </FrameLayout>
@@ -70,15 +78,16 @@
                     android:layout_width="match_parent"
                     android:textSize="@dimen/subHeading"
                     android:gravity="center|left"
-                    android:text="@string/images"
+                    android:text="@string/info"
                     android:paddingTop="@dimen/activity_horizontal_margin"
                     android:paddingBottom="@dimen/activity_horizontal_margin"
                     android:paddingLeft="?attr/actionBarSize"
                     android:layout_height="wrap_content" />
 
                 <android.support.v7.widget.RecyclerView
-                    android:id="@+id/imagesRecyclerView"
-                    android:layout_height="110dp"
+                    android:id="@+id/infoRecyclerView"
+                    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                    android:layout_height="wrap_content"
                     android:background="@color/eee"
                     android:layout_width="match_parent"
                     />
@@ -87,40 +96,19 @@
                     android:layout_width="match_parent"
                     android:textSize="@dimen/subHeading"
                     android:gravity="center|left"
-                    android:text="@string/offices"
+                    android:text="@string/courses"
                     android:paddingTop="@dimen/activity_horizontal_margin"
                     android:paddingBottom="@dimen/activity_horizontal_margin"
                     android:paddingLeft="?attr/actionBarSize"
                     android:layout_height="wrap_content" />
 
                 <android.support.v7.widget.RecyclerView
-                    android:id="@+id/officesRecyclerView"
+                    android:id="@+id/cousesRecyclerView"
                     android:layout_height="110dp"
                     android:background="@color/eee"
                     android:layout_width="match_parent"
                     />
-                
 
-                <TextView
-                    android:gravity="center|left"
-                    android:paddingLeft="?attr/actionBarSize"
-                    android:paddingRight="@dimen/activity_horizontal_margin"
-                    android:layout_width="match_parent"
-                    android:text="@string/directions"
-                    android:textColor="@color/six"
-                    android:textSize="@dimen/subHeading"
-                    android:layout_height="?attr/actionBarSize" />
-
-                <TextView
-                    android:id="@+id/directions"
-                    android:gravity="center|left"
-                    android:paddingLeft="?attr/actionBarSize"
-                    android:paddingRight="@dimen/activity_horizontal_margin"
-                    android:layout_width="match_parent"
-                    android:textColor="@color/six"
-                    android:textSize="@dimen/body"
-                    android:minHeight="?attr/actionBarSize"
-                    android:layout_height="wrap_content" />
 
             </LinearLayout>
 
@@ -129,10 +117,11 @@
 
 
         <android.support.design.widget.FloatingActionButton
+            android:id="@+id/action"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             app:layout_anchorGravity="bottom|right"
-            android:src="@mipmap/ic_action_maps_directions"
+            android:src="@mipmap/ic_action_maps_local_post_office"
             android:layout_margin="@dimen/activity_horizontal_margin"
             app:backgroundTint="@color/blue"
             android:layout_gravity="center|right"

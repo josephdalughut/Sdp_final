@@ -1,9 +1,10 @@
-package com.example.mycompany.sdp_final;
+package com.example.mycompany.sdp_final.entities;
 
 import android.database.Cursor;
 import android.graphics.Rect;
 
-import java.util.ArrayList;
+import com.example.mycompany.sdp_final.Database;
+
 import java.util.List;
 
 /**
@@ -97,23 +98,7 @@ public class Facility {
         return ""+coordinates.left + "-"+coordinates.top+"-"+coordinates.right+"-"+coordinates.bottom;
     }
 
-    public String getFImagesAsString(){
-        if(getfImages()==null || getfImages().isEmpty()) return "";
-        String string = "";
-        for(int i = 0; i < getfImages().size(); i++){
-            string = string + (i == getfImages().size()-1 ? getfImages().get(i) : getfImages().get(i)+",");
-        }
-        return string;
-    }
 
-    public static List<String> getFImagesFromString(String string){
-        if(string == null) return null;
-        String[] splits = string.split(",");
-        List<String> strings = new ArrayList<>(splits.length);
-        for(String s : splits)
-            strings.add(s);
-        return strings;
-    }
 
     public static Rect getCoordinatesById(String id){
         if(id == null) return null;
@@ -136,7 +121,7 @@ public class Facility {
                 .setName(NAME)
                 .setDescription(DESCRIPTION)
                 .setDirection(DIRECTION)
-                .setfImages(Facility.getFImagesFromString(FIMAGES));
+                .setfImages(Database.listFromString(FIMAGES));
     }
 
 }
