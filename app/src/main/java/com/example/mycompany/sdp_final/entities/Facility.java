@@ -14,9 +14,7 @@ import java.util.List;
 
 public class Facility {
     private Rect coordinates;
-    private String name;
-    private String description;
-    private String direction;
+    private String name, description, direction, id;
     private List<String> fImages;
 
     public static final class Constants {
@@ -47,6 +45,9 @@ public class Facility {
         this.coordinates = coordinates;
         this.name = name;
     }
+
+    public String getId(){return this.id;}
+    public Facility setId(String id){this.id = id; return this;}
 
     public Facility(){}
 

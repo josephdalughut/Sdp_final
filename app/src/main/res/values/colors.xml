@@ -7,4 +7,6 @@
     <color name="transparent">@android:color/transparent</color>
     <color name="white_alpha_50">#80ffffff</color>
     <color name="blue">#2196f3</color>
+    <color name="black_half">#80000000</color>
+    <color name="blue_alpha_50">#802196f3</color>
 </resources>

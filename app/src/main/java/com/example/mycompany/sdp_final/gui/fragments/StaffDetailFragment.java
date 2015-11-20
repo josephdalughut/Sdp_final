@@ -64,7 +64,7 @@ public class StaffDetailFragment extends Fragment {
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getActivity().onBackPressed();
+                goBack();
             }
         });
 
@@ -89,6 +89,10 @@ public class StaffDetailFragment extends Fragment {
         coursesRecyclerView.setLayoutManager(horizontalLayoutManager);
         setupAdapters();
         return rootView;
+    }
+
+    private void goBack(){
+        super.getActivity().onBackPressed();
     }
 
     private void setupAdapters(){
