@@ -1,9 +1,13 @@
 package com.example.mycompany.sdp_final.gui.fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -14,6 +18,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -22,6 +27,12 @@ import com.example.mycompany.sdp_final.R;
 import com.example.mycompany.sdp_final.entities.Facility;
 import com.example.mycompany.sdp_final.entities.Office;
 import com.example.mycompany.sdp_final.gui.activities.MainActivity;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.List;
 
@@ -30,16 +41,24 @@ import java.util.List;
  * Project name : Sdp_final.
  * Copyright (c) 2015 Meengle. All rights reserved.
  */
-public class FacilityDetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class FacilityDetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, OnMapReadyCallback, AppBarLayout.OnOffsetChangedListener {
 
     View rootView;
 
     Facility facility;
 
-    private static final int LOADER_ID = 9331;
+    GoogleMap map;
+
+    static FacilityDetailFragment INSTANCE = null;
+
+    private final int LOADER_ID = MainActivity.getLoaderId();
 
     public static FacilityDetailFragment getInstance(Facility facility){
-        return new FacilityDetailFragment().setFacility(facility);
+        if(INSTANCE!=null)
+            return null;
+        FacilityDetailFragment detailFragment = new FacilityDetailFragment().setFacility(facility);
+        INSTANCE = detailFragment;
+        return INSTANCE;
     }
 
     View findViewById(int resId){
@@ -53,6 +72,7 @@ public class FacilityDetailFragment extends Fragment implements LoaderManager.Lo
     private FloatingActionButton action;
     private CollapsingToolbarLayout collapsingToolbarLayout;
     private OfficeAdapter adapter;
+    private AppBarLayout appBarLayout;
 
     @Nullable
     @Override
@@ -65,6 +85,9 @@ public class FacilityDetailFragment extends Fragment implements LoaderManager.Lo
         officesRecyclerView = (RecyclerView) findViewById(R.id.officesRecyclerView);
         action = (FloatingActionButton) findViewById(R.id.action);
         collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsingToolbarLayout);
+        appBarLayout = (AppBarLayout) findViewById(R.id.appBarLayout);
+        appBarLayout.addOnOffsetChangedListener(this);
+        collapsingToolbarLayout.setContentScrimColor(getResources().getColor(R.color.blue));
 
         description.setText(facility.getDescription());
         directions.setText(facility.getDirection());
@@ -77,6 +100,17 @@ public class FacilityDetailFragment extends Fragment implements LoaderManager.Lo
 
         collapsingToolbarLayout.setTitleEnabled(true);
         collapsingToolbarLayout.setTitle(facility.getName());
+        collapsingToolbarLayout.setExpandedTitleColor(Color.WHITE);
+        collapsingToolbarLayout.setCollapsedTitleTextColor(Color.WHITE);
+
+        ImageButton back = (ImageButton) findViewById(R.id.back);
+
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                goBack();
+            }
+        });
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
@@ -90,11 +124,19 @@ public class FacilityDetailFragment extends Fragment implements LoaderManager.Lo
         adapter = new OfficeAdapter();
         officesRecyclerView.setAdapter(adapter);
         loadOffices();
+        SupportMapFragment fragment = new SupportMapFragment();
+        getChildFragmentManager().beginTransaction().replace(R.id.frame, fragment).commit();
+        fragment.getMapAsync(this);
         return rootView;
     }
 
     private void showMap(){
-
+        Uri gmmIntentUri = Uri.parse("geo:"+facility.getLatlng());
+        Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+        mapIntent.setPackage("com.google.android.apps.maps");
+        if (mapIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+            startActivity(mapIntent);
+        }
     }
 
     private void showImage(String url){
@@ -103,8 +145,24 @@ public class FacilityDetailFragment extends Fragment implements LoaderManager.Lo
     }
 
     private void showOffice(Office office){
-        OfficeDetailFragment fragment = OfficeDetailFragment.getInstance(office);
+        OfficeDetailFragment fragment = OfficeDetailFragment.getInstance(office, facility.getLatlng());
         ((MainActivity) super.getActivity()).getSupportFragmentManager().beginTransaction().add(R.id.container, fragment).addToBackStack(null).commit();
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        this.map = googleMap;
+        map.getUiSettings().setAllGesturesEnabled(false);
+        String[] lats = facility.getLatlng().split(",");
+        LatLng latLng = new LatLng(Double.valueOf(lats[0]), Double.valueOf(lats[1]));
+        map.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+        map.addMarker(new MarkerOptions().position(latLng).title(facility.getName()));
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
+    }
+
+    @Override
+    public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+
     }
 
     private static class OfficeHolder extends RecyclerView.ViewHolder {
@@ -180,7 +238,7 @@ public class FacilityDetailFragment extends Fragment implements LoaderManager.Lo
 
         @Override
         public OfficeHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new OfficeHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_staff_detail, parent, false));
+            return new OfficeHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_image_detail_centered, parent, false));
         }
 
         @Override
@@ -194,6 +252,7 @@ public class FacilityDetailFragment extends Fragment implements LoaderManager.Lo
                     showOffice(office);
                 }
             });
+            holder.selector.setTag(position);
         }
 
         @Override
@@ -246,13 +305,28 @@ public class FacilityDetailFragment extends Fragment implements LoaderManager.Lo
         }
     }
 
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        try {
+            getActivity().getSupportLoaderManager().destroyLoader(LOADER_ID);
+        }catch (Exception e){
+
+        }
+        INSTANCE = null;
+    }
 
     private void goBack(){
         super.getActivity().onBackPressed();
     }
 
     private void loadOffices(){
-        ((MainActivity)super.getActivity()).getSupportLoaderManager().initLoader(LOADER_ID, null, this);
+        try {
+            ((MainActivity) super.getActivity()).getSupportLoaderManager().initLoader(LOADER_ID, null, this);
+        }catch (Exception e){
+
+        }
     }
+
 
 }

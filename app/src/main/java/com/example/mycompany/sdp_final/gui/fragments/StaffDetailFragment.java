@@ -1,5 +1,9 @@
 package com.example.mycompany.sdp_final.gui.fragments;
 
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -7,6 +11,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -58,6 +63,8 @@ public class StaffDetailFragment extends Fragment {
         description = (TextView) findViewById(R.id.description);
         infoRecyclerView = (RecyclerView) findViewById(R.id.infoRecyclerView);
         coursesRecyclerView = (RecyclerView) findViewById(R.id.cousesRecyclerView);
+        collapsingToolbarLayout.setCollapsedTitleTextColor(Color.WHITE);
+        collapsingToolbarLayout.setExpandedTitleColor(Color.WHITE);
         action = (FloatingActionButton) findViewById(R.id.action);
         back = (ImageButton)findViewById(R.id.back);
 
@@ -80,7 +87,7 @@ public class StaffDetailFragment extends Fragment {
         description.setText(staff.getDescription());
         Picasso.with(getContext()).load(staff.getImage()).centerCrop().fit().into(image);
 
-        LinearLayoutManager verticalLayoutManager = new LinearLayoutManager(getContext());
+        LinearLayoutManager verticalLayoutManager = new RecyclerViewLayoutManager(getContext());
         verticalLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         LinearLayoutManager horizontalLayoutManager = new LinearLayoutManager(getContext());
         horizontalLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
@@ -168,7 +175,7 @@ public class StaffDetailFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(CourseViewHolder holder, int position) {
-
+            holder.text.setText(getItem(position));
         }
 
         private String getItem(int position){
@@ -185,6 +192,8 @@ public class StaffDetailFragment extends Fragment {
 
         public DetailAdapter(List<DetailItem> items){
             this.itemList = items;
+            notifyDataSetChanged();
+            Log.d("Denty", "Number of items in detail list: "+items.size());
         }
 
         private List<DetailItem> itemList;
@@ -215,6 +224,94 @@ public class StaffDetailFragment extends Fragment {
     }
 
     void sendEmail(){
-
+        if(staff.getEmails()==null || staff.getEmails().isEmpty()) return;
+        Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
+                "mailto", staff.getEmails().get(0), null));
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "AUN");
+        emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{staff.getEmails().get(0)});
+        startActivity(Intent.createChooser(emailIntent, "Send email..."));
     }
+
+    public static class RecyclerViewLayoutManager extends LinearLayoutManager {
+
+        public RecyclerViewLayoutManager(Context context)    {
+            super(context);
+        }
+
+        private int[] mMeasuredDimension = new int[2];
+
+        @Override
+        public void onMeasure(RecyclerView.Recycler recycler, RecyclerView.State state,
+                              int widthSpec, int heightSpec) {
+            final int widthMode = View.MeasureSpec.getMode(widthSpec);
+            final int heightMode = View.MeasureSpec.getMode(heightSpec);
+            final int widthSize = View.MeasureSpec.getSize(widthSpec);
+            final int heightSize = View.MeasureSpec.getSize(heightSpec);
+            int width = 0;
+            int height = 0;
+            for (int i = 0; i < getItemCount(); i++) {
+
+                if (getOrientation() == HORIZONTAL) {
+
+                    measureScrapChild(recycler, i,
+                            View.MeasureSpec.makeMeasureSpec(i, View.MeasureSpec.UNSPECIFIED),
+                            heightSpec,
+                            mMeasuredDimension);
+
+                    width = width + mMeasuredDimension[0];
+                    if (i == 0) {
+                        height = mMeasuredDimension[1];
+                    }
+                } else {
+                    measureScrapChild(recycler, i,
+                            widthSpec,
+                            View.MeasureSpec.makeMeasureSpec(i, View.MeasureSpec.UNSPECIFIED),
+                            mMeasuredDimension);
+                    height = height + mMeasuredDimension[1];
+                    if (i == 0) {
+                        width = mMeasuredDimension[0];
+                    }
+                }
+            }
+            switch (widthMode) {
+                case View.MeasureSpec.EXACTLY:
+                    width = widthSize;
+                case View.MeasureSpec.AT_MOST:
+                case View.MeasureSpec.UNSPECIFIED:
+            }
+
+            switch (heightMode) {
+                case View.MeasureSpec.EXACTLY:
+                    height = heightSize;
+                case View.MeasureSpec.AT_MOST:
+                case View.MeasureSpec.UNSPECIFIED:
+            }
+
+            setMeasuredDimension(width, height);
+        }
+
+        private void measureScrapChild(RecyclerView.Recycler recycler, int position, int widthSpec,
+                                       int heightSpec, int[] measuredDimension) {
+            View view = recycler.getViewForPosition(position);
+            recycler.bindViewToPosition(view, position);
+            if (view != null) {
+                RecyclerView.LayoutParams p = (RecyclerView.LayoutParams) view.getLayoutParams();
+                int childWidthSpec = ViewGroup.getChildMeasureSpec(widthSpec,
+                        getPaddingLeft() + getPaddingRight(), p.width);
+                int childHeightSpec = ViewGroup.getChildMeasureSpec(heightSpec,
+                        getPaddingTop() + getPaddingBottom(), p.height);
+                view.measure(childWidthSpec, childHeightSpec);
+                try {
+                    int w = measuredDimension[0];
+                    int n = view.getMeasuredWidth() + p.leftMargin + p.rightMargin;
+                    measuredDimension[0] = w > n ? w : n;
+                }catch (Exception e){
+                    measuredDimension[0] = view.getMeasuredWidth() + p.leftMargin + p.rightMargin;
+                }
+                measuredDimension[1] = view.getMeasuredHeight() + p.bottomMargin + p.topMargin;
+                recycler.recycleView(view);
+            }
+        }
+    }
+
 }

@@ -16,6 +16,7 @@ public class Facility {
     private Rect coordinates;
     private String name, description, direction, id;
     private List<String> fImages;
+    private String latlng;
 
     public static final class Constants {
 
@@ -25,8 +26,10 @@ public class Facility {
             public static final String ID = "_id";
             public static final String NAME = "name";
             public static final String DESCRIPTION = "description";
+            public static final String COORDINATES = "coordinates";
             public static final String DIRECTION = "direction";
             public static final String FIMAGES = "fimages";
+            public static final String LAT_LNG = "latlng";
         }
 
     }
@@ -37,6 +40,8 @@ public class Facility {
                 + Constants.Columns.NAME + " TEXT, "
                 + Constants.Columns.DESCRIPTION + " TEXT, "
                 + Constants.Columns.DIRECTION + " TEXT, "
+                + Constants.Columns.COORDINATES + " TEXT, "
+                + Constants.Columns.LAT_LNG + " TEXT, "
                 + Constants.Columns.FIMAGES + " TEXT);";
         return CREATE_STATEMENT;
     }
@@ -53,6 +58,13 @@ public class Facility {
 
     public Rect getCoordinates() {
         return coordinates;
+    }
+
+    public String getLatlng(){return this.latlng;}
+
+    public Facility setLatLng(String latLng){
+        this.latlng = latLng;
+        return this;
     }
 
     public Facility setCoordinates(Rect coordinates) {
@@ -94,7 +106,7 @@ public class Facility {
         return this;
     }
 
-    public String getIdByCoordinates(){
+    public static String getIdByCoordinates(Rect coordinates){
         if(coordinates==null) return null;
         return ""+coordinates.left + "-"+coordinates.top+"-"+coordinates.right+"-"+coordinates.bottom;
     }
@@ -115,11 +127,15 @@ public class Facility {
         String ID = cursor.getString(cursor.getColumnIndex(Constants.Columns.ID));
         String NAME = cursor.getString(cursor.getColumnIndex(Constants.Columns.NAME));
         String DESCRIPTION = cursor.getString(cursor.getColumnIndex(Constants.Columns.DESCRIPTION));
+        String LATLNG = cursor.getString(cursor.getColumnIndex(Constants.Columns.LAT_LNG));
+        String COORDINATES = cursor.getString(cursor.getColumnIndex(Constants.Columns.COORDINATES));
         String DIRECTION = cursor.getString(cursor.getColumnIndex(Constants.Columns.DIRECTION));
         String FIMAGES = cursor.getString(cursor.getColumnIndex(Constants.Columns.FIMAGES));
         return new Facility()
-                .setCoordinates(Facility.getCoordinatesById(ID))
+                .setId(ID)
+                .setCoordinates(Facility.getCoordinatesById(COORDINATES))
                 .setName(NAME)
+                .setLatLng(LATLNG)
                 .setDescription(DESCRIPTION)
                 .setDirection(DIRECTION)
                 .setfImages(Database.listFromString(FIMAGES));

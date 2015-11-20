@@ -1,9 +1,12 @@
 package com.example.mycompany.sdp_final.gui.fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -31,16 +34,21 @@ import com.squareup.picasso.Picasso;
  */
 public class OfficeDetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    public static OfficeDetailFragment getInstance(Office office){
-        return new OfficeDetailFragment().setOffice(office);
+    public static OfficeDetailFragment getInstance(Office office, String latlng){
+        return new OfficeDetailFragment().setOffice(office).setLatLng(latlng);
     }
 
     Office office;
+    String latlng;
 
-    private static final int LOADER_ID = 90293;
+    private final int LOADER_ID = MainActivity.getLoaderId();
 
     OfficeDetailFragment setOffice(Office office){
         this.office = office; return this;
+    }
+
+    OfficeDetailFragment setLatLng(String latLng){
+        this.latlng = latLng; return this;
     }
 
     View rootView;
@@ -48,6 +56,7 @@ public class OfficeDetailFragment extends Fragment implements LoaderManager.Load
     TextView title, description, directions;
     ImageButton back;
     RecyclerView staffRecyclerView;
+    FloatingActionButton action;
     StaffAdapter adapter;
 
     View findViewById(int resId){
@@ -61,6 +70,13 @@ public class OfficeDetailFragment extends Fragment implements LoaderManager.Load
 
         title = (TextView) findViewById(R.id.title);
         description = (TextView) findViewById(R.id.description);
+        action = (FloatingActionButton) findViewById(R.id.action);
+        action.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showMap();
+            }
+        });
         directions = (TextView) findViewById(R.id.directions);
         back = (ImageButton) findViewById(R.id.back);
 
@@ -92,7 +108,11 @@ public class OfficeDetailFragment extends Fragment implements LoaderManager.Load
     }
 
     private void loadStaff(){
-        ((MainActivity)super.getActivity()).getSupportLoaderManager().initLoader(LOADER_ID, null, this);
+        try {
+            ((MainActivity) super.getActivity()).getSupportLoaderManager().initLoader(LOADER_ID, null, this);
+        }catch (Exception e){
+
+        }
     }
 
     private class StaffViewHolder extends RecyclerView.ViewHolder {
@@ -116,6 +136,15 @@ public class OfficeDetailFragment extends Fragment implements LoaderManager.Load
     private void showStaff(Staff staff){
         StaffDetailFragment fragment = StaffDetailFragment.getInstance(staff);
         ((MainActivity)super.getActivity()).getSupportFragmentManager().beginTransaction().add(R.id.container, fragment).addToBackStack(null).commit();
+    }
+
+    private void showMap(){
+        Uri gmmIntentUri = Uri.parse("geo:"+latlng);
+        Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+        mapIntent.setPackage("com.google.android.apps.maps");
+        if (mapIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+            startActivity(mapIntent);
+        }
     }
 
     private class StaffAdapter extends RecyclerView.Adapter<StaffViewHolder>{
@@ -182,6 +211,11 @@ public class OfficeDetailFragment extends Fragment implements LoaderManager.Load
         super.onDestroy();
         try{
             adapter.cursor.close();
+        }catch (Exception e){
+
+        }
+        try {
+            getActivity().getSupportLoaderManager().destroyLoader(LOADER_ID);
         }catch (Exception e){
 
         }

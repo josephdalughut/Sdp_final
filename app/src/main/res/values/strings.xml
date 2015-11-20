@@ -11,5 +11,6 @@
     <string name="directions">Directions</string>
     <string name="info">Info</string>
     <string name="courses">Courses</string>
+    <string name="title_activity_maps">Map</string>
 
 </resources>

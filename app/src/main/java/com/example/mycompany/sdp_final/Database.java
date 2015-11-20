@@ -81,9 +81,11 @@ public class Database extends SQLiteOpenHelper {
     public static void cache(Facility facility, Context context){
         if(facility == null) return;
         ContentValues values = new ContentValues();
-        values.put(Facility.Constants.Columns.ID, facility.getIdByCoordinates());
+        values.put(Facility.Constants.Columns.ID, facility.getId());
         values.put(Facility.Constants.Columns.NAME, facility.getName());
+        values.put(Facility.Constants.Columns.COORDINATES, Facility.getIdByCoordinates(facility.getCoordinates()));
         values.put(Facility.Constants.Columns.DESCRIPTION, facility.getDescription());
+        values.put(Facility.Constants.Columns.LAT_LNG, facility.getLatlng());
         values.put(Facility.Constants.Columns.DIRECTION, facility.getDirection());
         values.put(Facility.Constants.Columns.FIMAGES, listToString(facility.getfImages()));
         getInstance(context).getWritableDatabase().replace(Facility.Constants.TABLE_NAME, null, values);
@@ -99,6 +101,7 @@ public class Database extends SQLiteOpenHelper {
         if(office == null) return;
         ContentValues values = new ContentValues();
         values.put(Office.Constants.Columns.ID, office.getId());
+        values.put(Office.Constants.Columns.FACILITY, office.getFacility());
         values.put(Office.Constants.Columns.NAME, office.getName());
         values.put(Office.Constants.Columns.DESCRIPTION, office.getDescription());
         values.put(Office.Constants.Columns.DIRECTIONS, office.getDirections());
@@ -109,6 +112,12 @@ public class Database extends SQLiteOpenHelper {
         if(offices == null || offices.isEmpty() || context == null) return;
         for(Office office : offices)
             cache(office, context);
+    }
+
+    public static void cacheStaff(List<Staff> staffList, Context context){
+        if(staffList == null || staffList.isEmpty() || context == null) return;
+        for(Staff staff : staffList)
+            cache(staff, context);
     }
 
     public static void cache(Staff staff, Context context){
@@ -138,6 +147,7 @@ public class Database extends SQLiteOpenHelper {
         String[] splits = string.split(",");
         List<String> strings = new ArrayList<>(splits.length);
         for(String s : splits)
+            if(s!=null && s!="null" && !s.isEmpty())
             strings.add(s);
         return strings;
     }
